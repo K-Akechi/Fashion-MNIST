@@ -45,14 +45,14 @@ if __name__ == '__main__':
     start_time = time.time()
 
     # kmeans_train_result, kmeans_test_result = kmeans(interValues_train, n, interValues_test)
-    # gmm_train_result, gmm_test_result = gaussian(interValues_train, n, interValues_test)
-    birch_train_result, birch_test_result = birch(interValues_train, n, interValues_test)
+    gmm_train_result, gmm_test_result = gaussian(interValues_train, n, interValues_test)
+    # birch_train_result, birch_test_result = birch(interValues_train, n, interValues_test)
     # aff_train_result, aff_test_result = affinitypropagation(interValues_train, interValues_test)
     duration = time.time() - start_time
     print('clustering finish in {} seconds'.format(duration))
 
     for i in range(interValues_train.shape[0]):
-        stat[birch_train_result[i]][labels_train[i]] += 1
+        stat[gmm_train_result[i]][labels_train[i]] += 1
     print(stat)
     # print(stat, file=f)
     index = np.argmax(stat, axis=1)
@@ -64,7 +64,7 @@ if __name__ == '__main__':
     for i in range(interValues_test.shape[0]):
         if predictions_test[i] == labels_test[i]:
             correct += 1
-        if index[birch_test_result[i]] != predictions_test[i]:
+        if index[gmm_test_result[i]] != predictions_test[i]:
             out_of_cluster += 1
             if predictions_test[i] != labels_test[i]:
                 ooc_and_misclassified += 1
