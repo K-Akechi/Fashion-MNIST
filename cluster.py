@@ -34,7 +34,10 @@ if __name__ == '__main__':
     n = 10
     # f = open('result.md', 'w')
     interValues_train = np.load('training_set_neuron_outputs.npy')
+    interValues_train_neg = np.load('training_set_error_outputs.npy')
     labels_train = np.load('training_set_labels.npy')
+    predict_train_neg = np.load('training_set_error_predicts.npy')
+    labels_train_neg = np.load('training_set_error_labels.npy')
     interValues_test = np.load('test_set_neuron_outputs.npy')
     labels_test = np.load('test_set_labels.npy')
     predictions_test = np.load('test_set_predictions.npy')
@@ -44,29 +47,33 @@ if __name__ == '__main__':
     stat_test = np.zeros((n, 10), dtype=int)
     start_time = time.time()
 
-    # kmeans_train_result, kmeans_test_result = kmeans(interValues_train, n, interValues_test)
-    gmm_train_result, gmm_test_result = gaussian(interValues_train, n, interValues_test)
-    # birch_train_result, birch_test_result = birch(interValues_train, n, interValues_test)
+    # kmeans_train_result, kmeans_test_result = kmeans(interValues_train, n, interValues_train_neg)
+    # gmm_train_result, gmm_test_result = gaussian(interValues_train, n, interValues_train_neg)
+    birch_train_result, birch_test_result = birch(interValues_train, n, interValues_train_neg)
     # aff_train_result, aff_test_result = affinitypropagation(interValues_train, interValues_test)
     duration = time.time() - start_time
     print('clustering finish in {} seconds'.format(duration))
 
     for i in range(interValues_train.shape[0]):
-        stat[gmm_train_result[i]][labels_train[i]] += 1
+        stat[birch_train_result[i]][labels_train[i]] += 1
     print(stat)
     # print(stat, file=f)
     index = np.argmax(stat, axis=1)
     print(index)
 
-    correct = 0
-    out_of_cluster = 0
-    ooc_and_misclassified = 0
-    for i in range(interValues_test.shape[0]):
-        if predictions_test[i] == labels_test[i]:
-            correct += 1
-        if index[gmm_test_result[i]] != predictions_test[i]:
-            out_of_cluster += 1
-            if predictions_test[i] != labels_test[i]:
-                ooc_and_misclassified += 1
-
-    print(ooc_and_misclassified, out_of_cluster, interValues_test.shape[0] - correct, correct)
+    # correct = 0
+    # out_of_cluster = 0
+    # ooc_and_misclassified = 0
+    # for i in range(interValues_test.shape[0]):
+    #     if predictions_test[i] == labels_test[i]:
+    #         correct += 1
+    #     if index[gmm_test_result[i]] != predictions_test[i]:
+    #         out_of_cluster += 1
+    #         if predictions_test[i] != labels_test[i]:
+    #             ooc_and_misclassified += 1
+    #
+    # print(ooc_and_misclassified, out_of_cluster, interValues_test.shape[0] - correct, correct)
+    for i in range(interValues_train_neg.shape[0]):
+        print('sample{}:  label:{}  neural net prediction:{}  clustering result:{}'.format(i, labels_train_neg[i],
+                                                                                               predict_train_neg[i],
+                                                                                               index[birch_test_result[i]]))
